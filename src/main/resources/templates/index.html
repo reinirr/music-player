@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Music Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-800">
+   <div class="mx-auto w-6/12">
+       <div class="text-center m-20 rounded-2xl py-3 px-2">
+           <h1 class="text-6xl font-extrabold text-white">Music archive</h1>
+           <img class="rounded-2xl m-auto" src="https://media1.tenor.com/m/V7MsfC1CoA8AAAAd/listening-to-music-vessbroz.gif" />
+           <form method="POST" enctype="multipart/form-data" action="/">
+               <label class="mx-2 text-white">File to Upload:</label>
+               <input name="file" class="bg-black ring-1 ring-gray-800 text-white font-medium p-1 rounded-xl" type="file" />
+               <button class="bg-black ring-1 ring-gray-800 text-white font-medium p-1 my-2 text-2xl rounded-xl hover:bg-white hover:text-black" type="submit">Upload file</button>
+           </form>
+       </div>
+
+       <div class="relative overflow-x-auto">
+           <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+               <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+               <tr>
+                   <th scope="col" class="px-6 py-3">
+                       Song name
+                   </th>
+                   <th scope="col" class="px-6 py-3">
+                       Audio
+                   </th>
+               </tr>
+               </thead>
+               <tbody>
+               <tr th:each="fileName : ${songFileNames}" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                   <th th:text="${fileName}" scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"></th>
+                   <td class="px-6 py-4">
+                       <audio controls>
+                           <source th:src="${'https://storage.yandexcloud.net/music-archive/' + fileName}" type="audio/mp3">
+                           Your browser does not support the audio element.
+                       </audio>
+                   </td>
+               </tr>
+               </tbody>
+           </table>
+       </div>
+   </div>
+</body>
+</html>
