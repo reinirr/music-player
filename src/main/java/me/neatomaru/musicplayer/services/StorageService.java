@@ -7,7 +7,7 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
-import org.springframework.core.env.Environment;
+import me.neatomaru.musicplayer.config.Config;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,23 +17,13 @@ import java.util.stream.Collectors;
 @Service
 public class StorageService {
 
-    private final String accessKey;
-    private final String secretKey;
-    private final String bucketName;
-    private final String region;
-    private final String endpoint;
-
-
+    private final Config config;
     private final AmazonS3 space;
 
-    public StorageService(Environment environment) {
-        accessKey = environment.getProperty("AWS_ACCESS_KEY");
-        secretKey = environment.getProperty("AWS_SECRET_KEY");
-        bucketName = environment.getProperty("AWS_BUCKET_NAME");
-        region = environment.getProperty("AWS_REGION");
-        endpoint = environment.getProperty("AWS_ENDPOINT");
+    public StorageService(Config cfg) {
+        config = cfg;
         AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
-                new BasicAWSCredentials(accessKey, secretKey)
+                new BasicAWSCredentials(config.getAccessKey(), config.getSecretKey())
         );
 
         space = AmazonS3ClientBuilder
@@ -41,14 +31,14 @@ public class StorageService {
                 .withCredentials(awsCredentialsProvider)
                 .withEndpointConfiguration(
                         new AwsClientBuilder.EndpointConfiguration(
-                                endpoint, region
+                                config.getEndpoint(), config.getRegion()
                         )
                 )
                 .build();
     }
 
     public List<String> getSongFileNames() {
-        ListObjectsV2Result result = space.listObjectsV2(bucketName);
+        ListObjectsV2Result result = space.listObjectsV2(config.getBucketName());
         List<S3ObjectSummary> objects = result.getObjectSummaries();
 
         return objects.stream()
@@ -59,7 +49,7 @@ public class StorageService {
         try {
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentType(file.getContentType());
-            space.putObject(new PutObjectRequest(bucketName, file.getOriginalFilename(), file.getInputStream(), objectMetadata).withCannedAcl(CannedAccessControlList.PublicRead));
+            space.putObject(new PutObjectRequest(config.getBucketName(), file.getOriginalFilename(), file.getInputStream(), objectMetadata).withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (Exception e) {
             e.printStackTrace();
         }
